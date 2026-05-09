@@ -68,6 +68,23 @@ body {
 .card-surface    { background-color: var(--card-bg); }
 .column-surface  { background-color: var(--column-bg); border-color: var(--column-border); }
 
+/* ─── Native form elements ─── */
+input[type="date"],
+input[type="datetime-local"],
+input[type="time"],
+select,
+textarea {
+  color-scheme: dark;
+}
+
+[data-theme="light"] input[type="date"],
+[data-theme="light"] input[type="datetime-local"],
+[data-theme="light"] input[type="time"],
+[data-theme="light"] select,
+[data-theme="light"] textarea {
+  color-scheme: light;
+}
+
 /* ─── Scrollbar ─── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
