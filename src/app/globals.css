@@ -1,26 +1,74 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Brand colors */
+  --color-cream: #F5F3F0;
+  --color-ink: #111111;
+  --color-walnut: #614E3A;
+  --color-deep-brown: #452900;
+  --color-mist: #9A9490;
+  --color-stone: #C8C5BE;
+
+  /* Urgency / semantic */
+  --color-yellow: #F1C76D;
+  --color-orange: #DB7442;
+  --color-dark-red: #BC3B3B;
+
+  /* Surfaces */
+  --color-bg-dark: #1A1714;
+  --color-bg-light: #F5EDDF;
+
+  /* Typography */
+  --font-italiana: 'Italiana', serif;
+  --font-jost: 'Jost', sans-serif;
+  --font-bodoni: 'Bodoni Moda', serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ─── Theme variables ─── */
+:root {
+  --bg: #1A1714;
+  --fg: #F5F3F0;
+  --border-hairline: rgba(245, 243, 240, 0.08);
+  --border-emphasis: rgba(245, 243, 240, 0.12);
+  --card-bg: rgba(245, 243, 240, 0.04);
+  --column-bg: rgba(245, 243, 240, 0.025);
+  --column-border: rgba(245, 243, 240, 0.06);
+}
+
+[data-theme="light"] {
+  --bg: #F5EDDF;
+  --fg: #111111;
+  --border-hairline: rgba(17, 17, 17, 0.08);
+  --border-emphasis: rgba(17, 17, 17, 0.12);
+  --card-bg: rgba(17, 17, 17, 0.03);
+  --column-bg: rgba(17, 17, 17, 0.02);
+  --column-border: rgba(17, 17, 17, 0.06);
+}
+
+/* ─── Base ─── */
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: 'Jost', sans-serif;
+  font-weight: 300;
+  font-size: 13px;
+  line-height: 1.5;
+  transition: background-color 200ms ease, color 200ms ease;
 }
+
+/* ─── Theme-aware utilities ─── */
+.bg-theme        { background-color: var(--bg); }
+.text-theme      { color: var(--fg); }
+.border-hairline { border-color: var(--border-hairline); }
+.border-emphasis { border-color: var(--border-emphasis); }
+.card-surface    { background-color: var(--card-bg); }
+.column-surface  { background-color: var(--column-bg); border-color: var(--column-border); }
+
+/* ─── Scrollbar ─── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(154, 148, 144, 0.3); border-radius: 2px; }
