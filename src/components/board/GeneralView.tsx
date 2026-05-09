@@ -8,7 +8,7 @@ interface Props {
   tasks: TaskWithRelations[]
   onTaskClick: (task: TaskWithRelations) => void
   onAddTask: (categoryId?: string) => void
-  onAddCategory: () => void
+  onManageCategories: () => void
 }
 
 export default function GeneralView({
@@ -16,7 +16,7 @@ export default function GeneralView({
   tasks,
   onTaskClick,
   onAddTask,
-  onAddCategory,
+  onManageCategories,
 }: Props) {
   const tasksByCategory = Object.fromEntries(
     categories.map(c => [c.id, tasks.filter(t => t.category_id === c.id)])
@@ -48,12 +48,12 @@ export default function GeneralView({
         </p>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <button
-            onClick={onAddCategory}
+            onClick={onManageCategories}
             style={{
               background: 'none',
               border: '1px solid var(--border-hairline)',
               borderRadius: 4,
-              padding: '5px 10px',
+              padding: '5px 12px',
               cursor: 'pointer',
               fontFamily: 'Jost, sans-serif',
               fontSize: 9,
@@ -65,7 +65,7 @@ export default function GeneralView({
             onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--border-emphasis)')}
             onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border-hairline)')}
           >
-            + Category
+            Categories
           </button>
           <a
             href="/cadence"
@@ -113,7 +113,7 @@ export default function GeneralView({
             No categories yet.
           </p>
           <button
-            onClick={onAddCategory}
+            onClick={onManageCategories}
             style={{
               background: '#614E3A',
               color: '#F5F3F0',

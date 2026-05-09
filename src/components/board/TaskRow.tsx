@@ -1,7 +1,9 @@
 'use client'
 
 import { useMemo } from 'react'
+import { useRouter } from 'next/navigation'
 import { computeUrgency, URGENCY_COLOR, formatCountdown, formatDate } from '@/lib/urgency'
+import { updateTask } from '@/lib/actions/tasks'
 import type { TaskWithRelations } from '@/lib/types'
 
 interface Props {
@@ -10,8 +12,15 @@ interface Props {
 }
 
 export default function TaskRow({ task, onClick }: Props) {
+  const router = useRouter()
   const now = useMemo(() => new Date(), [])
   const isDone = task.status === 'done'
+
+  async function togglePin(e: React.MouseEvent) {
+    e.stopPropagation()
+    await updateTask(task.id, { manual_priority_pin: !task.manual_priority_pin })
+    router.refresh()
+  }
 
   const tier = useMemo(
     () => (isDone ? null : computeUrgency(task, now)),
@@ -40,6 +49,17 @@ export default function TaskRow({ task, onClick }: Props) {
   const totalCount = task.checklist_items?.length ?? 0
 
   return (
+    <div
+      style={{ position: 'relative', marginBottom: 4 }}
+      onMouseEnter={e => {
+        const pin = e.currentTarget.querySelector<HTMLElement>('.pin-btn')
+        if (pin) pin.style.opacity = '1'
+      }}
+      onMouseLeave={e => {
+        const pin = e.currentTarget.querySelector<HTMLElement>('.pin-btn')
+        if (pin && !task.manual_priority_pin) pin.style.opacity = '0'
+      }}
+    >
     <button
       onClick={onClick}
       style={{
@@ -50,11 +70,10 @@ export default function TaskRow({ task, onClick }: Props) {
         border: 'none',
         borderLeft: `2px solid ${borderColor}`,
         borderRadius: '0 4px 4px 0',
-        padding: '9px 10px 9px 12px',
+        padding: '9px 28px 9px 12px',
         cursor: 'pointer',
         opacity: isDone ? 0.5 : 1,
         transition: 'opacity 150ms ease',
-        marginBottom: 4,
       }}
       onMouseEnter={e => !isDone && (e.currentTarget.style.background = 'rgba(245,243,240,0.07)')}
       onMouseLeave={e => (e.currentTarget.style.background = 'var(--card-bg)')}
@@ -100,5 +119,39 @@ export default function TaskRow({ task, onClick }: Props) {
         </div>
       )}
     </button>
+
+    {/* Priority pin — visible on hover or when pinned */}
+    {!isDone && (
+      <button
+        className="pin-btn"
+        onClick={togglePin}
+        title={task.manual_priority_pin ? 'Unpin from Today' : 'Pin to Today'}
+        style={{
+          position: 'absolute',
+          top: '50%',
+          right: 6,
+          transform: 'translateY(-50%)',
+          background: 'none',
+          border: 'none',
+          cursor: 'pointer',
+          padding: 2,
+          opacity: task.manual_priority_pin ? 1 : 0,
+          transition: 'opacity 120ms ease',
+          color: task.manual_priority_pin ? '#F1C76D' : '#9A9490',
+          lineHeight: 1,
+          fontSize: 11,
+        }}
+      >
+        {/* Pin icon */}
+        <svg width="11" height="11" viewBox="0 0 12 12" fill="none">
+          <path d="M9 1L11 3L7.5 5.5L8 9L6 7L4 9L4.5 5.5L1 3L3 1L6 3.5L9 1Z"
+            fill={task.manual_priority_pin ? '#F1C76D' : 'currentColor'}
+            stroke={task.manual_priority_pin ? '#F1C76D' : 'currentColor'}
+            strokeWidth="0.5"
+          />
+        </svg>
+      </button>
+    )}
+    </div>
   )
 }

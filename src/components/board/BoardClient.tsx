@@ -5,7 +5,7 @@ import TasksToday from './TasksToday'
 import GeneralView from './GeneralView'
 import NewTaskModal from '@/components/task/NewTaskModal'
 import TaskDetailPanel from '@/components/task/TaskDetailPanel'
-import AddCategoryModal from '@/components/categories/AddCategoryModal'
+import CategoryManagerModal from '@/components/categories/CategoryManagerModal'
 import type { Category, TaskWithRelations } from '@/lib/types'
 
 interface Props {
@@ -14,10 +14,10 @@ interface Props {
 }
 
 export default function BoardClient({ categories, tasks }: Props) {
-  const [selectedTask, setSelectedTask]         = useState<TaskWithRelations | null>(null)
-  const [showNewTask, setShowNewTask]           = useState(false)
-  const [newTaskCategory, setNewTaskCategory]   = useState<string | undefined>()
-  const [showAddCategory, setShowAddCategory]   = useState(false)
+  const [selectedTask, setSelectedTask]           = useState<TaskWithRelations | null>(null)
+  const [showNewTask, setShowNewTask]             = useState(false)
+  const [newTaskCategory, setNewTaskCategory]     = useState<string | undefined>()
+  const [showCategoryManager, setShowCategoryManager] = useState(false)
 
   function openNewTask(categoryId?: string) {
     setNewTaskCategory(categoryId)
@@ -32,10 +32,7 @@ export default function BoardClient({ categories, tasks }: Props) {
   return (
     <div style={{ padding: '32px 32px 96px', minHeight: 'calc(100vh - 63px)' }}>
       {/* Tasks today */}
-      <TasksToday
-        tasks={tasks}
-        onTaskClick={setSelectedTask}
-      />
+      <TasksToday tasks={tasks} onTaskClick={setSelectedTask} />
 
       {/* Divider */}
       <div style={{ borderTop: '1px solid var(--border-hairline)', marginBottom: 24 }} />
@@ -46,7 +43,7 @@ export default function BoardClient({ categories, tasks }: Props) {
         tasks={tasks}
         onTaskClick={setSelectedTask}
         onAddTask={openNewTask}
-        onAddCategory={() => setShowAddCategory(true)}
+        onManageCategories={() => setShowCategoryManager(true)}
       />
 
       {/* Floating "+ New task" button */}
@@ -104,10 +101,10 @@ export default function BoardClient({ categories, tasks }: Props) {
         />
       )}
 
-      {showAddCategory && (
-        <AddCategoryModal
-          currentCount={categories.length}
-          onClose={() => setShowAddCategory(false)}
+      {showCategoryManager && (
+        <CategoryManagerModal
+          categories={categories}
+          onClose={() => setShowCategoryManager(false)}
         />
       )}
     </div>
