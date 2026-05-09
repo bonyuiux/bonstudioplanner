@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import TaskRow from './TaskRow'
 import { reorderTasks } from '@/lib/actions/tasks'
@@ -16,21 +16,29 @@ interface Props {
 export default function CategoryColumn({ category, tasks, onTaskClick, onAddTask }: Props) {
   const router = useRouter()
 
-  const rawActive = tasks
+  // Ordered IDs override — only set during/after a drag; cleared when props refresh
+  const [overrideIds, setOverrideIds] = useState<string[] | null>(null)
+  const [dragOverId, setDragOverId]   = useState<string | null>(null)
+  const dragId                        = useRef<string | null>(null)
+
+  const propActive = tasks
     .filter(t => t.status !== 'done')
     .sort((a, b) => a.sort_order - b.sort_order)
+
   const doneTasks = tasks.filter(t => t.status === 'done')
 
-  const [activeTasks, setActiveTasks] = useState(rawActive)
-  const [dragOverId, setDragOverId]   = useState<string | null>(null)
-  const dragId = useRef<string | null>(null)
+  // Clear the drag override whenever parent props refresh with new task data
+  useEffect(() => {
+    setOverrideIds(null)
+  }, [tasks])
 
-  // Keep local list in sync when parent re-renders (after router.refresh)
-  const prevRaw = useRef(rawActive)
-  if (prevRaw.current !== rawActive) {
-    prevRaw.current = rawActive
-    setActiveTasks(rawActive)
-  }
+  // Build the display list: override order if dragging, else prop order
+  const activeTasks = overrideIds
+    ? overrideIds.flatMap(id => {
+        const t = propActive.find(t => t.id === id)
+        return t ? [t] : []
+      })
+    : propActive
 
   function onDragStart(id: string) {
     dragId.current = id
@@ -58,9 +66,10 @@ export default function CategoryColumn({ category, tasks, onTaskClick, onAddTask
 
     const [moved] = next.splice(fromIdx, 1)
     next.splice(toIdx, 0, moved)
-    setActiveTasks(next)
+    const newIds = next.map(t => t.id)
+    setOverrideIds(newIds)
 
-    await reorderTasks(next.map(t => t.id))
+    await reorderTasks(newIds)
     router.refresh()
   }
 
