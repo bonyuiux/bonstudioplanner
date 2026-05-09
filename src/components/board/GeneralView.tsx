@@ -46,26 +46,45 @@ export default function GeneralView({
         >
           General view
         </p>
-        <button
-          onClick={onAddCategory}
-          style={{
-            background: 'none',
-            border: '1px solid var(--border-hairline)',
-            borderRadius: 4,
-            padding: '5px 10px',
-            cursor: 'pointer',
-            fontFamily: 'Jost, sans-serif',
-            fontSize: 9,
-            fontWeight: 500,
-            letterSpacing: '0.18em',
-            textTransform: 'uppercase',
-            color: '#9A9490',
-          }}
-          onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--border-emphasis)')}
-          onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border-hairline)')}
-        >
-          + Category
-        </button>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <button
+            onClick={onAddCategory}
+            style={{
+              background: 'none',
+              border: '1px solid var(--border-hairline)',
+              borderRadius: 4,
+              padding: '5px 10px',
+              cursor: 'pointer',
+              fontFamily: 'Jost, sans-serif',
+              fontSize: 9,
+              fontWeight: 500,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: '#9A9490',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.borderColor = 'var(--border-emphasis)')}
+            onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--border-hairline)')}
+          >
+            + Category
+          </button>
+          <a
+            href="/cadence"
+            style={{
+              fontFamily: 'Jost, sans-serif',
+              fontSize: 9,
+              fontWeight: 500,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              color: '#9A9490',
+              textDecoration: 'none',
+              opacity: 0.6,
+            }}
+            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.opacity = '1')}
+            onMouseLeave={e => ((e.currentTarget as HTMLElement).style.opacity = '0.6')}
+          >
+            Cadence rules
+          </a>
+        </div>
       </div>
 
       {categories.length === 0 ? (

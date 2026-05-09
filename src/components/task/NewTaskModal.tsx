@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react'
 import DeadlineForm from './DeadlineForm'
 import FlexibleForm from './FlexibleForm'
+import CadenceForm from './CadenceForm'
 import type { Category } from '@/lib/types'
 
-type TaskKind = 'deadline' | 'flexible'
+type TaskKind = 'deadline' | 'flexible' | 'cadence'
 
 interface Props {
   categories: Category[]
@@ -38,6 +39,17 @@ function ListIcon() {
   )
 }
 
+function RefreshIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none" style={{ marginBottom: 10 }}>
+      <path d="M4 11a7 7 0 0 1 7-7 7 7 0 0 1 5 2.1L18 8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <path d="M18 11a7 7 0 0 1-7 7 7 7 0 0 1-5-2.1L4 14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      <polyline points="18,4 18,8 14,8" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <polyline points="4,18 4,14 8,14" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
 const TYPE_CARDS: Array<{
   kind: TaskKind
   icon: React.ReactNode
@@ -49,6 +61,12 @@ const TYPE_CARDS: Array<{
     icon:   <CalendarIcon />,
     name:   'Deadline',
     helper: 'A specific date or time. Shoots, deliveries, meetings.',
+  },
+  {
+    kind:   'cadence',
+    icon:   <RefreshIcon />,
+    name:   'Cadence',
+    helper: 'A recurring rhythm. Social posts, weekly reviews.',
   },
   {
     kind:   'flexible',
@@ -94,7 +112,7 @@ export default function NewTaskModal({ categories, defaultCategoryId, onClose }:
         onClick={e => e.stopPropagation()}
         style={{
           width: '100%',
-          maxWidth: step === 1 ? 540 : 520,
+          maxWidth: step === 1 ? 600 : 520,
           background: 'var(--bg)',
           border: '1px solid var(--border-emphasis)',
           borderRadius: 12,
@@ -162,7 +180,7 @@ export default function NewTaskModal({ categories, defaultCategoryId, onClose }:
 
         {/* Step 1: type picker */}
         {step === 1 && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
             {TYPE_CARDS.map(card => (
               <button
                 key={card.kind}
@@ -202,6 +220,13 @@ export default function NewTaskModal({ categories, defaultCategoryId, onClose }:
         {/* Step 2: form */}
         {step === 2 && selectedKind === 'deadline' && (
           <DeadlineForm
+            categories={categories}
+            defaultCategoryId={defaultCategoryId}
+            onClose={onClose}
+          />
+        )}
+        {step === 2 && selectedKind === 'cadence' && (
+          <CadenceForm
             categories={categories}
             defaultCategoryId={defaultCategoryId}
             onClose={onClose}

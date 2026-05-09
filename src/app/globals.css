@@ -38,11 +38,12 @@
 [data-theme="light"] {
   --bg: #F5EDDF;
   --fg: #111111;
-  --border-hairline: rgba(17, 17, 17, 0.08);
-  --border-emphasis: rgba(17, 17, 17, 0.12);
-  --card-bg: rgba(17, 17, 17, 0.03);
-  --column-bg: rgba(17, 17, 17, 0.02);
-  --column-border: rgba(17, 17, 17, 0.06);
+  --border-hairline: rgba(17, 17, 17, 0.10);
+  --border-emphasis: rgba(17, 17, 17, 0.18);
+  /* White-based surfaces lift clearly off the warm cream page background */
+  --card-bg: rgba(255, 255, 255, 0.72);
+  --column-bg: rgba(255, 255, 255, 0.58);
+  --column-border: rgba(17, 17, 17, 0.12);
 }
 
 /* ─── Base ─── */

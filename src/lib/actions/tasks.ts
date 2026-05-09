@@ -8,7 +8,7 @@ export interface CreateTaskInput {
   category_id: string
   title: string
   description?: string
-  task_type: 'deadline' | 'flexible'
+  task_type: 'deadline' | 'flexible' | 'cadence'
   scheduled_at?: string   // ISO string or undefined
   due_at?: string
   duration_minutes?: number
@@ -77,10 +77,40 @@ export async function updateTask(id: string, data: Partial<{
 }
 
 export async function markTaskDone(id: string): Promise<{ error?: string }> {
-  return updateTask(id, {
-    status:       'done',
-    completed_at: new Date().toISOString(),
-  })
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  // Fetch cadence_rule_id before updating
+  const { data: task } = await supabase
+    .from('tasks')
+    .select('cadence_rule_id')
+    .eq('id', id)
+    .eq('user_id', user.id)
+    .single()
+
+  const completedAt = new Date().toISOString()
+
+  const { error } = await supabase
+    .from('tasks')
+    .update({ status: 'done', completed_at: completedAt })
+    .eq('id', id)
+    .eq('user_id', user.id)
+
+  if (error) return { error: error.message }
+
+  // Propagate completion back to the cadence rule so the next window starts
+  if (task?.cadence_rule_id) {
+    await supabase
+      .from('cadence_rules')
+      .update({ last_completed_at: completedAt })
+      .eq('id', task.cadence_rule_id)
+      .eq('user_id', user.id)
+  }
+
+  revalidatePath('/board')
+  revalidatePath('/today')
+  return {}
 }
 
 export async function reopenTask(id: string): Promise<{ error?: string }> {

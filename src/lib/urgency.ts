@@ -40,15 +40,22 @@ export function computeUrgency(task: Task, now: Date, cadenceRule?: CadenceRule)
   // Manual pin always urgent
   if (task.manual_priority_pin) return 'urgent'
 
-  // Cadence tasks
-  if (task.task_type === 'cadence' && cadenceRule) {
-    const deadline = cadenceDeadline(cadenceRule, now)
-    const msUntil = deadline.getTime() - now.getTime()
-    if (msUntil <= 0) return 'urgent'                     // past limit
-    if (msUntil <= MS.day) return 'soon'                  // within 24h of limit
-    return 'cadence'                                       // on schedule
+  // Cadence tasks — use cadence rule if provided, otherwise fall through to due_at
+  if (task.task_type === 'cadence') {
+    const deadline = cadenceRule
+      ? cadenceDeadline(cadenceRule, now)
+      : task.due_at
+      ? new Date(task.due_at)   // spawned task always has due_at set
+      : null
+
+    if (deadline) {
+      const msUntil = deadline.getTime() - now.getTime()
+      if (msUntil <= 0) return 'urgent'       // past limit
+      if (msUntil <= MS.day) return 'soon'    // within 24h of limit
+      return 'cadence'                        // on schedule
+    }
+    return 'cadence'
   }
-  if (task.task_type === 'cadence') return 'cadence'
 
   // Scheduled_at tasks
   if (task.scheduled_at) {
