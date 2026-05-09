@@ -181,6 +181,7 @@ export default function TaskDetailPanel({ task, categories, onClose }: Props) {
   return (
     /* Backdrop */
     <div
+      className="modal-overlay"
       onClick={onClose}
       style={{
         position: 'fixed',
@@ -191,6 +192,7 @@ export default function TaskDetailPanel({ task, categories, onClose }: Props) {
     >
       {/* Panel */}
       <div
+        className="detail-panel"
         onClick={e => e.stopPropagation()}
         style={{
           position: 'absolute',

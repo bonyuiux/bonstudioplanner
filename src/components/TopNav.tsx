@@ -109,13 +109,9 @@ export function TopNav() {
 
   return (
     <nav
+      className="top-nav"
       style={{
         borderBottom: '1px solid var(--border-hairline)',
-        padding: '18px 32px',
-        display: 'grid',
-        gridTemplateColumns: '1fr auto 1fr',
-        alignItems: 'center',
-        gap: 16,
         position: 'sticky',
         top: 0,
         zIndex: 50,
@@ -123,10 +119,13 @@ export function TopNav() {
       }}
     >
       {/* Left: logo + datetime */}
-      <DateTimeDisplay />
+      <div className="top-nav-logo">
+        <DateTimeDisplay />
+      </div>
 
       {/* Center: tab group */}
       <div
+        className="top-nav-tabs"
         style={{
           display: 'flex',
           background: 'rgba(97,78,58,0.12)',
@@ -165,7 +164,7 @@ export function TopNav() {
       </div>
 
       {/* Right: theme toggle + logout */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 10 }}>
+      <div className="top-nav-right" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 10 }}>
         <ThemeToggle />
         <LogoutButton />
       </div>

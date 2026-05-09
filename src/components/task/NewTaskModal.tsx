@@ -95,6 +95,7 @@ export default function NewTaskModal({ categories, defaultCategoryId, onClose }:
   return (
     /* Backdrop */
     <div
+      className="modal-overlay"
       onClick={onClose}
       style={{
         position: 'fixed',
@@ -109,6 +110,7 @@ export default function NewTaskModal({ categories, defaultCategoryId, onClose }:
     >
       {/* Modal */}
       <div
+        className="modal-sheet"
         onClick={e => e.stopPropagation()}
         style={{
           width: '100%',

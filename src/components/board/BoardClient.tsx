@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import TasksToday from './TasksToday'
 import GeneralView from './GeneralView'
 import NewTaskModal from '@/components/task/NewTaskModal'
@@ -13,11 +13,22 @@ interface Props {
   tasks: TaskWithRelations[]
 }
 
+const STALE_MS = 14 * 24 * 60 * 60 * 1000
+
 export default function BoardClient({ categories, tasks }: Props) {
   const [selectedTask, setSelectedTask]           = useState<TaskWithRelations | null>(null)
   const [showNewTask, setShowNewTask]             = useState(false)
   const [newTaskCategory, setNewTaskCategory]     = useState<string | undefined>()
   const [showCategoryManager, setShowCategoryManager] = useState(false)
+  const [staleDismissed, setStaleDismissed]       = useState(false)
+
+  const now = useMemo(() => new Date(), [])
+
+  const staleCount = useMemo(() => tasks.filter(t =>
+    t.status !== 'done'
+    && t.task_type === 'flexible'
+    && (now.getTime() - new Date(t.updated_at).getTime()) > STALE_MS
+  ).length, [tasks, now])
 
   function openNewTask(categoryId?: string) {
     setNewTaskCategory(categoryId)
@@ -30,7 +41,41 @@ export default function BoardClient({ categories, tasks }: Props) {
   }
 
   return (
-    <div style={{ padding: '32px 32px 96px', minHeight: 'calc(100vh - 63px)' }}>
+    <div className="board-page" style={{ minHeight: 'calc(100vh - 63px)' }}>
+      {/* Stale task nudge banner */}
+      {staleCount > 0 && !staleDismissed && (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+            background: 'rgba(219,116,66,0.08)',
+            border: '1px solid rgba(219,116,66,0.22)',
+            borderRadius: 6,
+            padding: '10px 14px',
+            marginBottom: 24,
+            fontFamily: 'Jost, sans-serif',
+            fontSize: 11,
+            color: '#DB7442',
+          }}
+        >
+          <span>
+            {staleCount === 1
+              ? '1 flexible task hasn\'t been updated in 14+ days — worth revisiting.'
+              : `${staleCount} flexible tasks haven't been updated in 14+ days — worth revisiting.`}
+          </span>
+          <button
+            onClick={() => setStaleDismissed(true)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#DB7442', opacity: 0.6, fontSize: 16, lineHeight: 1, padding: '0 2px', flexShrink: 0 }}
+            onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
+            onMouseLeave={e => (e.currentTarget.style.opacity = '0.6')}
+          >
+            ×
+          </button>
+        </div>
+      )}
+
       {/* Tasks today */}
       <TasksToday tasks={tasks} onTaskClick={setSelectedTask} />
 

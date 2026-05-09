@@ -1,6 +1,9 @@
 'use client'
 
+import { useState, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import TaskRow from './TaskRow'
+import { reorderTasks } from '@/lib/actions/tasks'
 import type { Category, TaskWithRelations } from '@/lib/types'
 
 interface Props {
@@ -11,8 +14,60 @@ interface Props {
 }
 
 export default function CategoryColumn({ category, tasks, onTaskClick, onAddTask }: Props) {
-  const activeTasks = tasks.filter(t => t.status !== 'done')
-  const doneTasks   = tasks.filter(t => t.status === 'done')
+  const router = useRouter()
+
+  const rawActive = tasks
+    .filter(t => t.status !== 'done')
+    .sort((a, b) => a.sort_order - b.sort_order)
+  const doneTasks = tasks.filter(t => t.status === 'done')
+
+  const [activeTasks, setActiveTasks] = useState(rawActive)
+  const [dragOverId, setDragOverId]   = useState<string | null>(null)
+  const dragId = useRef<string | null>(null)
+
+  // Keep local list in sync when parent re-renders (after router.refresh)
+  const prevRaw = useRef(rawActive)
+  if (prevRaw.current !== rawActive) {
+    prevRaw.current = rawActive
+    setActiveTasks(rawActive)
+  }
+
+  function onDragStart(id: string) {
+    dragId.current = id
+  }
+
+  function onDragOver(e: React.DragEvent, overId: string) {
+    e.preventDefault()
+    if (dragId.current !== overId) setDragOverId(overId)
+  }
+
+  function onDragLeave() {
+    setDragOverId(null)
+  }
+
+  async function onDrop(e: React.DragEvent, overId: string) {
+    e.preventDefault()
+    setDragOverId(null)
+    const fromId = dragId.current
+    if (!fromId || fromId === overId) return
+
+    const next = [...activeTasks]
+    const fromIdx = next.findIndex(t => t.id === fromId)
+    const toIdx   = next.findIndex(t => t.id === overId)
+    if (fromIdx < 0 || toIdx < 0) return
+
+    const [moved] = next.splice(fromIdx, 1)
+    next.splice(toIdx, 0, moved)
+    setActiveTasks(next)
+
+    await reorderTasks(next.map(t => t.id))
+    router.refresh()
+  }
+
+  function onDragEnd() {
+    dragId.current = null
+    setDragOverId(null)
+  }
 
   return (
     <div
@@ -87,10 +142,28 @@ export default function CategoryColumn({ category, tasks, onTaskClick, onAddTask
         <div style={{ borderTop: '1px solid var(--border-hairline)' }} />
       </div>
 
-      {/* Active tasks */}
+      {/* Active tasks — draggable */}
       <div>
         {activeTasks.map(task => (
-          <TaskRow key={task.id} task={task} onClick={() => onTaskClick(task)} />
+          <div
+            key={task.id}
+            draggable
+            onDragStart={() => onDragStart(task.id)}
+            onDragOver={e => onDragOver(e, task.id)}
+            onDragLeave={onDragLeave}
+            onDrop={e => onDrop(e, task.id)}
+            onDragEnd={onDragEnd}
+            style={{
+              cursor: 'grab',
+              outline: dragOverId === task.id
+                ? '1px dashed rgba(154,148,144,0.5)'
+                : 'none',
+              borderRadius: 4,
+              transition: 'outline 80ms ease',
+            }}
+          >
+            <TaskRow task={task} onClick={() => onTaskClick(task)} />
+          </div>
         ))}
       </div>
 

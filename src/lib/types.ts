@@ -24,6 +24,7 @@ export interface Task {
   duration_minutes: number | null
   status: TaskStatus
   manual_priority_pin: boolean
+  sort_order: number
   cadence_rule_id: string | null
   completed_at: string | null
   created_at: string

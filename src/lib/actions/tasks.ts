@@ -120,6 +120,22 @@ export async function reopenTask(id: string): Promise<{ error?: string }> {
   })
 }
 
+export async function reorderTasks(orderedIds: string[]): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Unauthorized' }
+
+  const updates = orderedIds.map((id, index) =>
+    supabase.from('tasks').update({ sort_order: index }).eq('id', id).eq('user_id', user.id)
+  )
+  const results = await Promise.all(updates)
+  const failed = results.find(r => r.error)
+  if (failed?.error) return { error: failed.error.message }
+
+  revalidatePath('/board')
+  return {}
+}
+
 export async function deleteTask(id: string): Promise<{ error?: string }> {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()

@@ -66,6 +66,7 @@ create table if not exists tasks (
   duration_minutes     int,
   status               task_status_enum not null default 'todo',
   manual_priority_pin  bool not null default false,
+  sort_order           int  not null default 0,
   cadence_rule_id      uuid references cadence_rules(id) on delete set null,
   completed_at         timestamptz,
   created_at           timestamptz not null default now(),

@@ -48,6 +48,10 @@ export default function TaskRow({ task, onClick }: Props) {
   const doneCount = task.checklist_items?.filter(i => i.done).length ?? 0
   const totalCount = task.checklist_items?.length ?? 0
 
+  const isStale = !isDone
+    && task.task_type === 'flexible'
+    && (now.getTime() - new Date(task.updated_at).getTime()) > 14 * 24 * 60 * 60 * 1000
+
   return (
     <div
       style={{ position: 'relative', marginBottom: 4 }}
@@ -105,7 +109,14 @@ export default function TaskRow({ task, onClick }: Props) {
             letterSpacing: '0.04em',
           }}
         >
-          <span>{dateLine ?? ''}</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            {dateLine ?? ''}
+            {isStale && (
+              <span style={{ color: '#DB7442', opacity: 0.7, fontSize: 9, letterSpacing: '0.06em' }}>
+                stale
+              </span>
+            )}
+          </span>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             {totalCount > 0 && (
               <span>{doneCount}/{totalCount}</span>

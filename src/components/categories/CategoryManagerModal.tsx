@@ -110,6 +110,7 @@ export default function CategoryManagerModal({ categories, onClose }: Props) {
 
   return (
     <div
+      className="modal-overlay"
       onClick={onClose}
       style={{
         position: 'fixed',
@@ -123,6 +124,7 @@ export default function CategoryManagerModal({ categories, onClose }: Props) {
       }}
     >
       <div
+        className="modal-sheet"
         onClick={e => e.stopPropagation()}
         style={{
           width: '100%',
