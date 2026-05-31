@@ -28,6 +28,17 @@ export default function CategoryManagerModal({ categories, onClose }: Props) {
   const [items, setItems] = useState<Category[]>([...categories])
   const [editing, setEditing] = useState<Record<string, EditState>>({})
   const [saving, setSaving] = useState<Record<string, boolean>>({})
+  const [error, setError] = useState<string | null>(null)
+
+  // Resync local items whenever server-fetched categories change.
+  // Uses the React-recommended "store previous prop" pattern instead of
+  // useEffect, since we want the new value visible immediately rather than
+  // after a commit cycle.
+  const [prevCategoriesRef, setPrevCategoriesRef] = useState(categories)
+  if (prevCategoriesRef !== categories) {
+    setPrevCategoriesRef(categories)
+    setItems([...categories])
+  }
 
   // New category inline form
   const [newName, setNewName]         = useState('')
@@ -43,12 +54,19 @@ export default function CategoryManagerModal({ categories, onClose }: Props) {
 
   // ── Reorder ──────────────────────────────────────────────────────────────
   async function move(index: number, dir: -1 | 1) {
-    const next = [...items]
     const target = index + dir
-    if (target < 0 || target >= next.length) return
+    if (target < 0 || target >= items.length) return
+    const prev = items
+    const next = [...items]
     ;[next[index], next[target]] = [next[target], next[index]]
     setItems(next)
-    await reorderCategories(next.map(c => c.id))
+    setError(null)
+    const res = await reorderCategories(next.map(c => c.id))
+    if (res.error) {
+      setItems(prev)
+      setError(`Could not reorder: ${res.error}`)
+      return
+    }
     router.refresh()
   }
 
@@ -68,11 +86,16 @@ export default function CategoryManagerModal({ categories, onClose }: Props) {
     const state = editing[id]
     if (!state?.name.trim()) return
     setSaving(prev => ({ ...prev, [id]: true }))
-    await updateCategory(id, {
+    setError(null)
+    const res = await updateCategory(id, {
       name:     state.name.trim(),
       subtitle: state.subtitle.trim() || null,
     })
     setSaving(prev => ({ ...prev, [id]: false }))
+    if (res.error) {
+      setError(`Could not save: ${res.error}`)
+      return
+    }
     setEditing(prev => { const n = { ...prev }; delete n[id]; return n })
     setItems(prev => prev.map(c =>
       c.id === id
@@ -85,8 +108,15 @@ export default function CategoryManagerModal({ categories, onClose }: Props) {
   // ── Delete ───────────────────────────────────────────────────────────────
   async function handleDelete(id: string, name: string) {
     if (!confirm(`Delete "${name}"? Tasks in this category will lose their category assignment.`)) return
-    setItems(prev => prev.filter(c => c.id !== id))
-    await deleteCategory(id)
+    const prev = items
+    setItems(p => p.filter(c => c.id !== id))
+    setError(null)
+    const res = await deleteCategory(id)
+    if (res.error) {
+      setItems(prev)
+      setError(`Could not delete: ${res.error}`)
+      return
+    }
     router.refresh()
   }
 
@@ -95,17 +125,21 @@ export default function CategoryManagerModal({ categories, onClose }: Props) {
     e.preventDefault()
     if (!newName.trim()) return
     setAddLoading(true)
-    await createCategory({
+    setError(null)
+    const res = await createCategory({
       name:       newName.trim(),
       subtitle:   newSubtitle.trim() || undefined,
       sort_order: items.length,
     })
+    setAddLoading(false)
+    if (res.error) {
+      setError(`Could not add: ${res.error}`)
+      return
+    }
     setNewName('')
     setNewSubtitle('')
     setAddingNew(false)
-    setAddLoading(false)
     router.refresh()
-    // Refresh local list from router
   }
 
   return (
@@ -150,6 +184,35 @@ export default function CategoryManagerModal({ categories, onClose }: Props) {
           </div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9A9490', fontSize: 20, lineHeight: 1, padding: 0 }}>×</button>
         </div>
+
+        {/* Error banner */}
+        {error && (
+          <div
+            role="alert"
+            style={{
+              background: 'rgba(188,59,59,0.08)',
+              border: '1px solid rgba(188,59,59,0.35)',
+              borderRadius: 4,
+              padding: '8px 12px',
+              marginBottom: 12,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: 12,
+              fontFamily: 'Jost, sans-serif',
+              fontSize: 11,
+              color: '#BC3B3B',
+              flexShrink: 0,
+            }}
+          >
+            <span>{error}</span>
+            <button
+              onClick={() => setError(null)}
+              aria-label="Dismiss error"
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#BC3B3B', opacity: 0.6, fontSize: 14, lineHeight: 1, padding: '0 2px', flexShrink: 0 }}
+            >×</button>
+          </div>
+        )}
 
         {/* Category list — scrollable */}
         <div style={{ overflowY: 'auto', flexGrow: 1, marginBottom: 16 }}>

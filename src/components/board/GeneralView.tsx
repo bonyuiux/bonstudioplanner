@@ -1,6 +1,8 @@
 'use client'
 
+import { useMemo } from 'react'
 import CategoryColumn from './CategoryColumn'
+import TaskRow from './TaskRow'
 import type { Category, TaskWithRelations } from '@/lib/types'
 
 interface Props {
@@ -18,9 +20,16 @@ export default function GeneralView({
   onAddTask,
   onManageCategories,
 }: Props) {
-  const tasksByCategory = Object.fromEntries(
-    categories.map(c => [c.id, tasks.filter(t => t.category_id === c.id)])
-  )
+  const { tasksByCategory, uncategorized } = useMemo(() => {
+    const byCat: Record<string, TaskWithRelations[]> = {}
+    for (const c of categories) byCat[c.id] = []
+    const orphans: TaskWithRelations[] = []
+    for (const t of tasks) {
+      if (t.category_id && byCat[t.category_id]) byCat[t.category_id].push(t)
+      else if (t.category_id == null) orphans.push(t)
+    }
+    return { tasksByCategory: byCat, uncategorized: orphans }
+  }, [categories, tasks])
 
   return (
     <section>
@@ -149,6 +158,51 @@ export default function GeneralView({
               onAddTask={() => onAddTask(cat.id)}
             />
           ))}
+
+          {uncategorized.length > 0 && (
+            <div
+              style={{
+                background: 'var(--column-bg)',
+                border: '1px dashed var(--border-hairline)',
+                borderRadius: 6,
+                padding: 12,
+                minWidth: 0,
+              }}
+            >
+              <div style={{ marginBottom: 10 }}>
+                <h3
+                  style={{
+                    fontFamily: 'Italiana, serif',
+                    fontSize: 16,
+                    fontStyle: 'italic',
+                    letterSpacing: '0.02em',
+                    color: '#9A9490',
+                    margin: '0 0 4px',
+                    lineHeight: 1.2,
+                  }}
+                >
+                  Uncategorized
+                </h3>
+                <p
+                  style={{
+                    fontFamily: 'Jost, sans-serif',
+                    fontSize: 9,
+                    fontWeight: 500,
+                    letterSpacing: '0.22em',
+                    textTransform: 'uppercase',
+                    color: '#9A9490',
+                    margin: '0 0 6px',
+                  }}
+                >
+                  Reassign via task detail
+                </p>
+                <div style={{ borderTop: '1px solid var(--border-hairline)' }} />
+              </div>
+              {uncategorized.map(task => (
+                <TaskRow key={task.id} task={task} onClick={() => onTaskClick(task)} />
+              ))}
+            </div>
+          )}
         </div>
       )}
     </section>

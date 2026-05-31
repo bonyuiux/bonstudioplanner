@@ -12,6 +12,9 @@ interface Props {
   task: TaskWithRelations
   categories: Category[]
   onClose: () => void
+  // Optional. If provided, called after the task is successfully marked done so
+  // a parent (e.g. BoardClient) can keep showing it for the rest of the session.
+  onMarkedDone?: (task: TaskWithRelations) => void
 }
 
 function ChecklistRow({
@@ -80,7 +83,7 @@ function ChecklistRow({
   )
 }
 
-export default function TaskDetailPanel({ task, categories, onClose }: Props) {
+export default function TaskDetailPanel({ task, categories, onClose, onMarkedDone }: Props) {
   const router = useRouter()
   const [editing, setEditing]     = useState(false)
   const [saving, setSaving]       = useState(false)
@@ -124,7 +127,7 @@ export default function TaskDetailPanel({ task, categories, onClose }: Props) {
     await updateTask(task.id, {
       title:       title.trim(),
       description: description.trim() || null,
-      category_id: categoryId,
+      category_id: categoryId || null,
       status,
     })
     setSaving(false)
@@ -133,7 +136,8 @@ export default function TaskDetailPanel({ task, categories, onClose }: Props) {
   }
 
   async function handleMarkDone() {
-    await markTaskDone(task.id)
+    const res = await markTaskDone(task.id)
+    if (!res.error) onMarkedDone?.(task)
     router.refresh()
     onClose()
   }
@@ -199,7 +203,6 @@ export default function TaskDetailPanel({ task, categories, onClose }: Props) {
           top: 0,
           right: 0,
           bottom: 0,
-          width: 400,
           background: 'var(--bg)',
           borderLeft: '1px solid var(--border-emphasis)',
           padding: 28,
@@ -339,7 +342,8 @@ export default function TaskDetailPanel({ task, categories, onClose }: Props) {
                 </Select>
               </FieldWrapper>
               <FieldWrapper label="Category">
-                <Select value={categoryId} onChange={e => setCategoryId(e.target.value)}>
+                <Select value={categoryId ?? ''} onChange={e => setCategoryId(e.target.value || null)}>
+                  <option value="">Uncategorized</option>
                   {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </Select>
               </FieldWrapper>

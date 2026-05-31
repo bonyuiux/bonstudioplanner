@@ -138,7 +138,7 @@ export default function TodayClient({ tasks, categories }: Props) {
   const totalVisible = counts.reduce((s, x) => s + x.count, 0)
 
   return (
-    <div style={{ padding: '40px 32px 80px', maxWidth: 720, margin: '0 auto' }}>
+    <div className="app-page" style={{ maxWidth: 720 }}>
       {/* Header */}
       <p
         style={{
@@ -155,6 +155,7 @@ export default function TodayClient({ tasks, categories }: Props) {
       </p>
 
       <h1
+        className="hero-display"
         style={{
           fontFamily: 'Bodoni Moda, serif',
           fontSize: 48,

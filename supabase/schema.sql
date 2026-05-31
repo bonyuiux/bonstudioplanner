@@ -57,7 +57,7 @@ create policy "cadence_rules: own rows" on cadence_rules
 create table if not exists tasks (
   id                   uuid primary key default uuid_generate_v4(),
   user_id              uuid not null references auth.users(id) on delete cascade,
-  category_id          uuid not null references categories(id) on delete set null,
+  category_id          uuid references categories(id) on delete set null,
   title                text not null,
   description          text,
   task_type            task_type_enum   not null,

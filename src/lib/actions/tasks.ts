@@ -53,7 +53,7 @@ export async function createTask(data: CreateTaskInput): Promise<{ error?: strin
 export async function updateTask(id: string, data: Partial<{
   title: string
   description: string | null
-  category_id: string
+  category_id: string | null
   scheduled_at: string | null
   due_at: string | null
   duration_minutes: number | null

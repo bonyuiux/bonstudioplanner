@@ -22,13 +22,32 @@ export default function BoardClient({ categories, tasks }: Props) {
   const [showCategoryManager, setShowCategoryManager] = useState(false)
   const [staleDismissed, setStaleDismissed]       = useState(false)
 
+  // Session-only completed tasks. Server no longer returns recently-done
+  // tasks; instead we snapshot the task on completion and keep showing it
+  // with strikethrough until the user refreshes the page.
+  const [sessionDone, setSessionDone] = useState<Record<string, TaskWithRelations>>({})
+
   const now = useMemo(() => new Date(), [])
 
-  const staleCount = useMemo(() => tasks.filter(t =>
+  const displayTasks = useMemo(() => {
+    const liveIds = new Set(tasks.map(t => t.id))
+    const overridden = tasks.map(t => sessionDone[t.id] ?? t)
+    const orphaned   = Object.values(sessionDone).filter(d => !liveIds.has(d.id))
+    return [...overridden, ...orphaned]
+  }, [tasks, sessionDone])
+
+  function handleMarkedDone(task: TaskWithRelations) {
+    setSessionDone(prev => ({
+      ...prev,
+      [task.id]: { ...task, status: 'done', completed_at: new Date().toISOString() },
+    }))
+  }
+
+  const staleCount = useMemo(() => displayTasks.filter(t =>
     t.status !== 'done'
     && t.task_type === 'flexible'
     && (now.getTime() - new Date(t.updated_at).getTime()) > STALE_MS
-  ).length, [tasks, now])
+  ).length, [displayTasks, now])
 
   function openNewTask(categoryId?: string) {
     setNewTaskCategory(categoryId)
@@ -77,7 +96,7 @@ export default function BoardClient({ categories, tasks }: Props) {
       )}
 
       {/* Tasks today */}
-      <TasksToday tasks={tasks} onTaskClick={setSelectedTask} />
+      <TasksToday tasks={displayTasks} onTaskClick={setSelectedTask} />
 
       {/* Divider */}
       <div style={{ borderTop: '1px solid var(--border-hairline)', marginBottom: 24 }} />
@@ -85,7 +104,7 @@ export default function BoardClient({ categories, tasks }: Props) {
       {/* General view */}
       <GeneralView
         categories={categories}
-        tasks={tasks}
+        tasks={displayTasks}
         onTaskClick={setSelectedTask}
         onAddTask={openNewTask}
         onManageCategories={() => setShowCategoryManager(true)}
@@ -143,6 +162,7 @@ export default function BoardClient({ categories, tasks }: Props) {
           task={selectedTask}
           categories={categories}
           onClose={() => setSelectedTask(null)}
+          onMarkedDone={handleMarkedDone}
         />
       )}
 

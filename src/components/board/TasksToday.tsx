@@ -43,16 +43,9 @@ export default function TasksToday({ tasks, onTaskClick }: Props) {
 
   return (
     <section style={{ marginBottom: 40 }}>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '160px 1fr 28px',
-          gap: 16,
-          alignItems: 'start',
-        }}
-      >
+      <div className="tasks-today-grid">
         {/* Left: hero label */}
-        <div style={{ paddingTop: 4 }}>
+        <div className="tasks-today-hero" style={{ paddingTop: 4 }}>
           <p
             style={{
               fontFamily: 'Jost, sans-serif',
@@ -67,6 +60,7 @@ export default function TasksToday({ tasks, onTaskClick }: Props) {
             Now
           </p>
           <h2
+            className="hero-display"
             style={{
               fontFamily: 'Bodoni Moda, serif',
               fontSize: 44,
@@ -84,6 +78,7 @@ export default function TasksToday({ tasks, onTaskClick }: Props) {
         {/* Center: cards */}
         {priorityTasks.length === 0 ? (
           <div
+            className="tasks-today-cards"
             style={{
               display: 'flex',
               alignItems: 'center',
@@ -108,6 +103,7 @@ export default function TasksToday({ tasks, onTaskClick }: Props) {
           </div>
         ) : (
           <div
+            className="tasks-today-cards"
             style={{
               display: 'grid',
               gridTemplateColumns: `repeat(${visible.length}, 1fr)`,
@@ -123,7 +119,7 @@ export default function TasksToday({ tasks, onTaskClick }: Props) {
 
         {/* Right: prev/next arrows */}
         {hasMore ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, paddingTop: 4 }}>
+          <div className="tasks-today-arrows" style={{ display: 'flex', flexDirection: 'column', gap: 4, paddingTop: 4 }}>
             <button
               onClick={() => setPage(p => Math.max(0, p - 1))}
               disabled={page === 0}

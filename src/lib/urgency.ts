@@ -83,7 +83,7 @@ export function computeUrgency(task: Task, now: Date, cadenceRule?: CadenceRule)
 export const URGENCY_COLOR: Record<UrgencyTier, string> = {
   urgent:    '#BC3B3B',
   soon:      '#DB7442',
-  cadence:   '#F1C76D',
+  cadence:   '#7A8F5C',
   scheduled: '#614E3A',
   flexible:  'rgba(154,148,144,0.4)',
 }
@@ -99,7 +99,7 @@ export const URGENCY_LABEL: Record<UrgencyTier, string> = {
 export const URGENCY_CARD_BORDER: Record<UrgencyTier, string> = {
   urgent:    'rgba(188,59,59,0.5)',
   soon:      'rgba(219,116,66,0.4)',
-  cadence:   'rgba(241,199,109,0.35)',
+  cadence:   'rgba(122,143,92,0.35)',
   scheduled: 'rgba(97,78,58,0.5)',
   flexible:  'rgba(245,243,240,0.12)',
 }

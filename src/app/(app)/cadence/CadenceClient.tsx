@@ -33,14 +33,14 @@ export default function CadenceClient({ rules, categories }: Props) {
   }
 
   return (
-    <div style={{ padding: '40px 32px 80px', maxWidth: 680, margin: '0 auto' }}>
+    <div className="app-page" style={{ maxWidth: 680 }}>
       {/* Header */}
       <div style={{ marginBottom: 32 }}>
         <p style={{ fontFamily: 'Jost, sans-serif', fontSize: 9, fontWeight: 500, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#9A9490', margin: '0 0 8px' }}>
           Recurring work
         </p>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-          <h1 style={{ fontFamily: 'Bodoni Moda, serif', fontSize: 40, fontWeight: 500, lineHeight: 1.1, color: 'var(--fg)', margin: 0 }}>
+          <h1 className="hero-display" style={{ fontFamily: 'Bodoni Moda, serif', fontSize: 40, fontWeight: 500, lineHeight: 1.1, color: 'var(--fg)', margin: 0 }}>
             Cadence <em style={{ fontStyle: 'italic', fontWeight: 400 }}>rules</em>
           </h1>
           <button

@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import TaskDetailPanel from '@/components/task/TaskDetailPanel'
+import { Select } from '@/components/task/FormField'
 import type { Category, TaskWithRelations } from '@/lib/types'
 
 interface Props {
@@ -55,36 +56,22 @@ function relativeTime(completedAt: string, now: Date): string {
   return `${days} days ago`
 }
 
-function FilterPill({
-  label,
-  active,
-  onClick,
-}: {
-  label: string
-  active: boolean
-  onClick: () => void
-}) {
+function FilterLabel({ children }: { children: React.ReactNode }) {
   return (
-    <button
-      onClick={onClick}
+    <span
       style={{
-        background: active ? '#614E3A' : 'var(--card-bg)',
-        color: active ? '#F5F3F0' : 'var(--fg)',
-        border: `1px solid ${active ? '#614E3A' : 'var(--border-hairline)'}`,
-        borderRadius: 4,
-        padding: '6px 12px',
         fontFamily: 'Jost, sans-serif',
-        fontSize: 11,
-        fontWeight: active ? 500 : 300,
-        cursor: 'pointer',
-        letterSpacing: '0.04em',
-        opacity: active ? 1 : 0.7,
-        transition: 'all 150ms ease',
-        whiteSpace: 'nowrap',
+        fontSize: 9,
+        fontWeight: 500,
+        letterSpacing: '0.22em',
+        textTransform: 'uppercase',
+        color: '#9A9490',
+        marginBottom: 4,
+        display: 'block',
       }}
     >
-      {label}
-    </button>
+      {children}
+    </span>
   )
 }
 
@@ -117,44 +104,47 @@ export default function LogClient({ tasks, categories }: Props) {
   }, [filtered, now])
 
   return (
-    <div style={{ padding: '40px 32px 80px', maxWidth: 760, margin: '0 auto' }}>
+    <div className="log-page">
       {/* Header */}
       <p style={{ fontFamily: 'Jost, sans-serif', fontSize: 9, fontWeight: 500, letterSpacing: '0.22em', textTransform: 'uppercase', color: '#9A9490', margin: '0 0 8px' }}>
         Archive
       </p>
-      <h1 style={{ fontFamily: 'Bodoni Moda, serif', fontSize: 48, fontWeight: 500, lineHeight: 1.1, color: 'var(--fg)', margin: '0 0 28px' }}>
+      <h1 className="hero-display" style={{ fontFamily: 'Bodoni Moda, serif', fontSize: 48, fontWeight: 500, lineHeight: 1.1, color: 'var(--fg)', margin: '0 0 28px' }}>
         What you&apos;ve <em style={{ fontStyle: 'italic', fontWeight: 400 }}>shipped</em>
       </h1>
 
       {/* Filters */}
-      <div style={{ display: 'flex', gap: 16, marginBottom: 32, flexWrap: 'wrap' }}>
-        {/* Category filter */}
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          <FilterPill
-            label="All categories"
-            active={categoryFilter === 'all'}
-            onClick={() => setCategoryFilter('all')}
-          />
-          {categories.map(c => (
-            <FilterPill
-              key={c.id}
-              label={c.name}
-              active={categoryFilter === c.id}
-              onClick={() => setCategoryFilter(c.id)}
-            />
-          ))}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+          gap: 14,
+          marginBottom: 32,
+        }}
+      >
+        <div>
+          <FilterLabel>Category</FilterLabel>
+          <Select
+            value={categoryFilter}
+            onChange={e => setCategoryFilter(e.target.value)}
+          >
+            <option value="all">All categories</option>
+            {categories.map(c => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </Select>
         </div>
 
-        {/* Range filter */}
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginLeft: 'auto' }}>
-          {RANGES.map(r => (
-            <FilterPill
-              key={r.key}
-              label={r.label}
-              active={rangeFilter === r.key}
-              onClick={() => setRangeFilter(r.key)}
-            />
-          ))}
+        <div>
+          <FilterLabel>Range</FilterLabel>
+          <Select
+            value={rangeFilter}
+            onChange={e => setRangeFilter(e.target.value as RangeKey)}
+          >
+            {RANGES.map(r => (
+              <option key={r.key} value={r.key}>{r.label}</option>
+            ))}
+          </Select>
         </div>
       </div>
 

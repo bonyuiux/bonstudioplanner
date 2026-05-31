@@ -8,9 +8,10 @@ export default async function BoardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
-
-  const [{ data: categories }, { data: active }, { data: recentDone }] = await Promise.all([
+  // Done tasks intentionally NOT fetched — completion is session-only on the
+  // board. Marking a task done shows strikethrough until refresh; the Log
+  // page is the durable history view.
+  const [{ data: categories }, { data: active }] = await Promise.all([
     supabase
       .from('categories')
       .select('*')
@@ -21,19 +22,9 @@ export default async function BoardPage() {
       .select('*, category:categories(*), checklist_items(*)')
       .in('status', ['todo', 'in_progress'])
       .order('created_at', { ascending: false }),
-
-    supabase
-      .from('tasks')
-      .select('*, category:categories(*), checklist_items(*)')
-      .eq('status', 'done')
-      .gte('completed_at', sevenDaysAgo)
-      .order('completed_at', { ascending: false }),
   ])
 
-  const tasks: TaskWithRelations[] = [
-    ...((active as TaskWithRelations[]) ?? []),
-    ...((recentDone as TaskWithRelations[]) ?? []),
-  ]
+  const tasks: TaskWithRelations[] = (active as TaskWithRelations[]) ?? []
 
   return (
     <BoardClient

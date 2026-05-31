@@ -15,7 +15,7 @@ export interface Category {
 export interface Task {
   id: string
   user_id: string
-  category_id: string
+  category_id: string | null
   title: string
   description: string | null
   task_type: TaskType
@@ -52,6 +52,6 @@ export interface CadenceRule {
 }
 
 export interface TaskWithRelations extends Task {
-  category: Category
+  category: Category | null
   checklist_items: ChecklistItem[]
 }
