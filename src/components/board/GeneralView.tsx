@@ -3,9 +3,11 @@
 import { useMemo } from 'react'
 import CategoryColumn from './CategoryColumn'
 import TaskRow from './TaskRow'
-import type { Category, TaskWithRelations } from '@/lib/types'
+import { orderAreas } from '@/lib/overview'
+import type { Area, Category, TaskWithRelations } from '@/lib/types'
 
 interface Props {
+  areas: Area[]
   categories: Category[]
   tasks: TaskWithRelations[]
   onTaskClick: (task: TaskWithRelations) => void
@@ -14,6 +16,7 @@ interface Props {
 }
 
 export default function GeneralView({
+  areas,
   categories,
   tasks,
   onTaskClick,
@@ -30,6 +33,23 @@ export default function GeneralView({
     }
     return { tasksByCategory: byCat, uncategorized: orphans }
   }, [categories, tasks])
+
+  // Categories are grouped by area in the same order the Overview shows them,
+  // so starring an area pulls its projects to the front here too. Categories
+  // with no area sort last, under an "Unassigned" label.
+  const areaById = useMemo(
+    () => new Map(areas.map(a => [a.id, a])),
+    [areas],
+  )
+
+  const sortedCategories = useMemo(() => {
+    const rank = new Map(orderAreas(areas).map((a, i) => [a.id, i]))
+    return [...categories].sort((a, b) => {
+      const ra = a.area_id ? rank.get(a.area_id) ?? 998 : 999
+      const rb = b.area_id ? rank.get(b.area_id) ?? 998 : 999
+      return ra - rb || a.sort_order - b.sort_order
+    })
+  }, [areas, categories])
 
   return (
     <section>
@@ -149,10 +169,11 @@ export default function GeneralView({
             alignItems: 'start',
           }}
         >
-          {categories.map(cat => (
+          {sortedCategories.map(cat => (
             <CategoryColumn
               key={cat.id}
               category={cat}
+              area={cat.area_id ? areaById.get(cat.area_id) ?? null : null}
               tasks={tasksByCategory[cat.id] ?? []}
               onTaskClick={onTaskClick}
               onAddTask={() => onAddTask(cat.id)}

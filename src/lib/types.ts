@@ -3,13 +3,50 @@ export type TaskStatus = 'todo' | 'in_progress' | 'done' | 'archived'
 export type FrequencyType = 'per_week' | 'every_n_days' | 'weekly_on_day'
 export type UrgencyTier = 'urgent' | 'soon' | 'cadence' | 'scheduled' | 'flexible'
 
+export interface Area {
+  id: string
+  user_id: string
+  name: string
+  color: string
+  sort_order: number
+  starred_at: string | null
+  created_at: string
+}
+
 export interface Category {
   id: string
   user_id: string
   name: string
   subtitle: string | null
+  area_id: string | null
   sort_order: number
   created_at: string
+}
+
+export interface PhaseMilestone {
+  id: string
+  phase_id: string
+  label: string
+  done: boolean
+  sort_order: number
+}
+
+export interface Phase {
+  id: string
+  user_id: string
+  area_id: string
+  title: string
+  started_at: string
+  ended_at: string | null
+  created_at: string
+}
+
+export interface PhaseWithMilestones extends Phase {
+  phase_milestones: PhaseMilestone[]
+}
+
+export interface AreaWithPhases extends Area {
+  phases: PhaseWithMilestones[]
 }
 
 export interface Task {

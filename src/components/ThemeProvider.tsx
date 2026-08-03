@@ -32,9 +32,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const toggle = () => setTheme(t => (t === 'dark' ? 'light' : 'dark'))
 
-  // Prevent flash: render children only after theme is read from localStorage
-  if (!mounted) return null
-
+  // NOTE: this used to `return null` until mounted, which meant the server HTML
+  // was thrown away and the whole app painted blank until JS loaded, hydrated,
+  // and this effect ran. The theme is now applied pre-paint by an inline script
+  // in the root layout, so children render immediately and there is still no
+  // flash. This is the single biggest first-load win in the app.
   return (
     <ThemeContext.Provider value={{ theme, toggle }}>
       {children}

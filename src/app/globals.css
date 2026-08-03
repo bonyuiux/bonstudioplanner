@@ -33,6 +33,13 @@
   --card-bg: rgba(245, 243, 240, 0.04);
   --column-bg: rgba(245, 243, 240, 0.025);
   --column-border: rgba(245, 243, 240, 0.06);
+  --veil: rgba(6, 5, 4, 0.93);
+  --sheet-bg: #24201C;
+  --card-solid: #2B2622;
+  --card-solid-dim: #1C1916;
+  --fg-muted: #9A9490;
+  --band-a: transparent;
+  --band-b: rgba(245, 243, 240, 0.035);
 }
 
 [data-theme="light"] {
@@ -44,6 +51,13 @@
   --card-bg: rgba(255, 255, 255, 0.72);
   --column-bg: rgba(255, 255, 255, 0.58);
   --column-border: rgba(17, 17, 17, 0.12);
+  --veil: rgba(18, 16, 12, 0.92);   /* composites to #24221D — 14.35:1 for cream text */
+  --sheet-bg: #FFFDF9;
+  --card-solid: #FFFFFF;
+  --card-solid-dim: #D8D3CB;
+  --fg-muted: #55504A;   /* 7.98:1 on white, 5.36:1 on the dim card */
+  --band-a: transparent;
+  --band-b: rgba(97, 78, 58, 0.07);
 }
 
 /* ─── Base ─── */
@@ -192,4 +206,75 @@ textarea {
 
   /* Smaller hero serif headings on phone */
   .hero-display { font-size: 34px !important; }
+}
+
+
+/* ─── Overview page ───────────────────────────────────────────────────────────
+   The page itself carries no horizontal padding, so each band can run the full
+   width of the window. Padding lives on the header and on each band instead,
+   and the band's is deeper — that's what steps the area name inward from the
+   page title.
+
+   minmax(0, 1fr) on the side tracks is load-bearing: a plain 1fr track has
+   min-width:auto, so the phase rail's fixed-width chips force the grid wider
+   than the viewport and shove the whole page sideways. */
+.overview-page {
+  padding: 0 0 80px;
+}
+
+.overview-header {
+  padding: 40px 32px 28px;
+}
+
+.overview-band {
+  padding: 26px 56px 30px;
+}
+
+/* Two tints alternating, not one per area — the stripe separates neighbours,
+   it doesn't identify them. Area identity lives in the card's left border. */
+.overview-band:nth-child(odd)  { background: var(--band-a); }
+.overview-band:nth-child(even) { background: var(--band-b); }
+
+.overview-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 400px) minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+}
+
+.overview-rail {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  overflow-x: auto;
+  padding: 2px 0 8px;
+  min-width: 0;
+}
+
+.overview-rail-empty {
+  font-family: 'Jost', sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9A9490;
+  opacity: 0.6;
+  text-align: right;
+  margin: 0;
+}
+
+.overview-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  width: 150px;
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .overview-header { padding: 24px 16px 20px; }
+  .overview-band   { padding: 20px 24px 24px; }
+  .overview-row { grid-template-columns: 1fr; gap: 14px; }
+  .overview-rail { justify-content: flex-start; }
+  .overview-rail-empty { text-align: left; }
+  .overview-actions { flex-direction: row; justify-content: center; width: 100%; }
 }
