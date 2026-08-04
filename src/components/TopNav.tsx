@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react'
 const TABS = [
   { label: 'Board', href: '/board' },
   { label: 'Today', href: '/today' },
+  { label: 'Overview', href: '/overview' },
   { label: 'Log',   href: '/log'   },
 ]
 

@@ -6,16 +6,17 @@ import GeneralView from './GeneralView'
 import NewTaskModal from '@/components/task/NewTaskModal'
 import TaskDetailPanel from '@/components/task/TaskDetailPanel'
 import CategoryManagerModal from '@/components/categories/CategoryManagerModal'
-import type { Category, TaskWithRelations } from '@/lib/types'
+import type { Area, Category, TaskWithRelations } from '@/lib/types'
 
 interface Props {
+  areas: Area[]
   categories: Category[]
   tasks: TaskWithRelations[]
 }
 
 const STALE_MS = 14 * 24 * 60 * 60 * 1000
 
-export default function BoardClient({ categories, tasks }: Props) {
+export default function BoardClient({ areas, categories, tasks }: Props) {
   const [selectedTask, setSelectedTask]           = useState<TaskWithRelations | null>(null)
   const [showNewTask, setShowNewTask]             = useState(false)
   const [newTaskCategory, setNewTaskCategory]     = useState<string | undefined>()
@@ -103,6 +104,7 @@ export default function BoardClient({ categories, tasks }: Props) {
 
       {/* General view */}
       <GeneralView
+        areas={areas}
         categories={categories}
         tasks={displayTasks}
         onTaskClick={setSelectedTask}

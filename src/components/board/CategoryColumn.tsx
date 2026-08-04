@@ -4,17 +4,21 @@ import { useState, useRef, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import TaskRow from './TaskRow'
 import { reorderTasks } from '@/lib/actions/tasks'
-import type { Category, TaskWithRelations } from '@/lib/types'
+import { accentText } from '@/lib/areaColors'
+import { useTheme } from '@/components/ThemeProvider'
+import type { Area, Category, TaskWithRelations } from '@/lib/types'
 
 interface Props {
   category: Category
+  area: Area | null
   tasks: TaskWithRelations[]
   onTaskClick: (task: TaskWithRelations) => void
   onAddTask: () => void
 }
 
-export default function CategoryColumn({ category, tasks, onTaskClick, onAddTask }: Props) {
+export default function CategoryColumn({ category, area, tasks, onTaskClick, onAddTask }: Props) {
   const router = useRouter()
+  const { theme } = useTheme()
 
   // Ordered IDs override — only set during/after a drag; cleared when props refresh
   const [overrideIds, setOverrideIds] = useState<string[] | null>(null)
@@ -90,6 +94,21 @@ export default function CategoryColumn({ category, tasks, onTaskClick, onAddTask
     >
       {/* Column header */}
       <div style={{ marginBottom: 10 }}>
+        {/* Area label — replaces the old subtitle and sits above the name */}
+        <p
+          style={{
+            fontFamily: 'Jost, sans-serif',
+            fontSize: 9,
+            fontWeight: 500,
+            letterSpacing: '0.22em',
+            textTransform: 'uppercase',
+            color: area ? accentText(area.color, theme === 'dark') : 'var(--fg-muted)',
+            margin: '0 0 3px',
+            opacity: area ? 1 : 0.6,
+          }}
+        >
+          {area ? area.name : 'Unassigned'}
+        </p>
         <div
           style={{
             display: 'flex',
@@ -131,22 +150,6 @@ export default function CategoryColumn({ category, tasks, onTaskClick, onAddTask
             +
           </button>
         </div>
-
-        {category.subtitle && (
-          <p
-            style={{
-              fontFamily: 'Jost, sans-serif',
-              fontSize: 9,
-              fontWeight: 500,
-              letterSpacing: '0.22em',
-              textTransform: 'uppercase',
-              color: '#9A9490',
-              margin: '0 0 6px',
-            }}
-          >
-            {category.subtitle}
-          </p>
-        )}
 
         <div style={{ borderTop: '1px solid var(--border-hairline)' }} />
       </div>
